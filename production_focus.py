@@ -162,9 +162,12 @@ def search_for_task(search_string):
 
 
 def get_divergence_meter() -> float:
-    #divergence = completions / trials
-    #return divergence
-    pass
+    all_tasks = db.get_all_tasks()
+    trials = sum([task.trials for task in all_tasks])
+    completions = sum([task.completions for task in all_tasks])
+
+    divergence = ((trials - completions) / trials) * 100
+    return divergence
 
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
@@ -215,11 +218,12 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    return statement(render_template("divergence_meter", meter="0.00"))\
+    divergence = get_divergence_meter()
+    return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
-                       text="0.00",
-                       small_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187",
-                       large_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187")
+                       text=divergence,
+                       small_image_url=f"https://production-focus2.localtunnel.me/generate_nixie?pattern={divergence}",
+                       large_image_url=f"https://production-focus2.localtunnel.me/generate_nixie?pattern={divergence}")
 
 
 @ask.intent('ViewHappinessIntent')
