@@ -201,7 +201,11 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    return statement(render_template("divergence_meter", meter=get_divergence_meter()))
+    return statement(render_template("divergence_meter", meter="0.00"))\
+        .standard_card(title="Divergence Meter",
+                       text="0.00",
+                       small_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187",
+                       large_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187")
 
 
 @ask.intent('ViewHappinessIntent')
