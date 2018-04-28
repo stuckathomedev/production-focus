@@ -167,5 +167,30 @@ def handle_create_reminder(description, repeat_interval, due_time):
     return statement(created_text)
 
 
+@ask.intent('ViewTasksIntent')
+def handle_view_tasks():
+    pass
+
+
+@ask.intent('ViewDivergenceMeterIntent')
+def handle_view_divergence_meter():
+    pass
+
+
+@ask.intent('ViewHappinessIntent')
+def handle_view_happiness():
+    pass
+
+
+@ask.intent('DeleteTaskIntent')
+def handle_delete_task():
+    pass
+
+
+@ask.intent('ViewMailboxIntent')
+def handle_view_mailbox():
+    pass
+
+
 if __name__ == '__main__':
     app.run(debug=True)
