@@ -153,13 +153,12 @@ def session_ended():
 
 
 def search_for_task(search_string):
+    print(search_string)
     #delete_words = stopwords.words('english')
     #terms = [word for word in search_string.split() if word not in delete_words]
-    print(db.get_all_tasks())
     matching_tasks = [task for task in db.get_all_tasks() if
-                      all(term for term in search_string.split() if task['description'].find(term) != 1)]
+                      search_string in task['description']]
     return matching_tasks
-    pass
 
 
 def get_divergence_meter() -> float:
@@ -265,9 +264,14 @@ def handle_complete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.update_intent(match['CustomerID'], completed=True)
-
-    return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
+    db.update_intent(match['CustomerID'], completions=match['completions'] + 1)
+    if match['is_recurring'] == True:
+        # TODO impl multiple missing trials
+        db.update_intent(match['CustomerID'], last_completed=str(date.today()), trials=match['trials'] + 1)
+        return statement(render_template("completed_reminder", description=match['description'], ))
+    else:
+        db.update_intent(match['CustomerID'], completed=True, trials=match['trials'] + 1)
+        return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
 
 
 if __name__ == '__main__':
