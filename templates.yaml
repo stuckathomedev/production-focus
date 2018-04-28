@@ -1,0 +1,17 @@
+welcome: |
+  production_focus.
+
+welcome_re: |
+  production_focus. How may I help you?
+
+welcome_card: |
+  production_focus is an Alexa skill written by Stuck@Home. An alexa skill to focus your production
+
+stop_bye: |
+  Goodbye!
+
+cancel_bye: |
+  OK, goodbye!
+
+help_text: |
+  production_focus is an Alexa skill that does things. This is where the developer would normally explain how to do them.
