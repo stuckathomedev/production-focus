@@ -6,6 +6,8 @@ from . import routes
 
 from PIL import Image
 
+# By Hellbus under CC-SA 3.0
+# https://commons.wikimedia.org/wiki/File:Z566M_digit_0.jpg & others
 nixies = list(map(Image.open, ["img/0.jpg",
                           "img/1.jpg",
                           "img/2.jpg",
