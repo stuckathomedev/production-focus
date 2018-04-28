@@ -21,3 +21,18 @@ created_todo: |
 
 created_reminder: |
   Okay, I'll remind you to {{ description }} {{ repeat_interval }} at {{ due_time }}.
+
+deleting_task: |
+  Okay, deleting the task with description {{ description }}.
+
+more_than_one_match: |
+  Sorry, {{ num }} tasks were found with your search criteria. Their descriptions are: {{ descriptions }}.
+
+no_matches: |
+  Sorry, no matches were found with your search criteria.
+
+completed_task: |
+  Congratulations on completing your task to {{ description }}! Your divergence meter is now {{ meter }}.
+
+divergence_meter: |
+  Your current divergence meter is: {{ meter }}.

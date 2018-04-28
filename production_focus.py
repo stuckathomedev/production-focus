@@ -7,6 +7,8 @@
 
 import logging
 from datetime import datetime, date, time
+
+from nltk.corpus import stopwords
 from flask import Flask, json, render_template
 from flask_ask import Ask, request, session, question, statement
 
@@ -145,6 +147,19 @@ def session_ended():
     return statement("")
 
 
+def search_for_task(search_string):
+    delete_words = stopwords.words('english')
+    terms = [word for word in search_string.split() if word not in delete_words]
+    matching_tasks = [task for task in tasks if
+                      all(term for term in terms if task.description.find(term) != 1)]
+    return matching_tasks
+
+
+def get_divergence_meter() -> float:
+    divergence = completions / trials
+    return divergence
+
+
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
     if due_date is None:
@@ -155,10 +170,12 @@ def handle_create_todo(description, due_date, due_time):
     return statement(created_text)
 
 
-
-
 @ask.intent('CreateReminderIntent', convert={'due_time': 'time'})
 def handle_create_reminder(description, repeat_interval, due_time):
+    # this is terrible but it basically extracts the actual matched slot from Alexa
+    # so "every two days" is converted into the canonical "every 2 days" slot as
+    # described in the intent schema
+    repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
     created_text = render_template("created_reminder",
                                    description=description,
                                    repeat_interval=repeat_interval,
@@ -174,7 +191,7 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    pass
+    return statement(render_template("divergence_meter", meter=get_divergence_meter()))
 
 
 @ask.intent('ViewHappinessIntent')
@@ -183,13 +200,36 @@ def handle_view_happiness():
 
 
 @ask.intent('DeleteTaskIntent')
-def handle_delete_task():
-    pass
+def handle_delete_task(description):
+    matches = search_for_task(description)
+    if len(matches) == 0:
+        return statement(render_template("no_matches"))
+    if len(matches) > 1:
+        return statement(render_template("more_than_one_match",
+                                         num=len(matches),
+                                         descriptions=str([match.description for match in matches])))
+
+    match = matches[0]
+    return statement(render_template("deleting_task", description=match.description))
 
 
 @ask.intent('ViewMailboxIntent')
 def handle_view_mailbox():
     pass
+
+
+@ask.intent('CompleteTaskIntent')
+def handle_complete_task(description):
+    matches = search_for_task(description)
+    if len(matches) == 0:
+        return statement(render_template("no_matches"))
+    if len(matches) > 1:
+        return statement(render_template("more_than_one_match",
+                                         num=len(matches),
+                                         descriptions=str([match.description for match in matches])))
+
+    match = matches[0]
+    return statement(render_template("completed_task", description=match.description, meter=get_divergence_meter()))
 
 
 if __name__ == '__main__':
