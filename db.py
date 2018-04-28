@@ -13,7 +13,7 @@ def table_creation_time():
     print(table.creation_date_time)
 
 
-def create_task(CustomerID, title, contents, is_recurring, task_status, date, completions, trials, net_happiness, net_money):
+def create_task(id, title, contents, is_recurring, task_status, date, completions, trials, net_happiness, net_money):
     if trials > 0:
         completion_rate = completions/trials*100
     else:
@@ -21,36 +21,36 @@ def create_task(CustomerID, title, contents, is_recurring, task_status, date, co
 
     table.put_item(
         Item={
-            'CustomerID': CustomerID,
+            'CustomerID': id,
             'title': title,
             'contents': contents,
-            'isRecurring': is_recurring,
+            'is_recurring': is_recurring,
             'status': task_status,
             'date': date,
             'completions': completions,
             'trials': trials,
-            'net-happiness': net_happiness,
-            'net-money': net_money,
-            'completion-rate': completion_rate,
+            'net_happiness': net_happiness,
+            'net_money': net_money,
+            'completion_rate': completion_rate,
         }
     )
 
 
-def search_intent(CustomerID):
+def search_intent(id):
     response = table.get_item(
         Key={
-            'CustomerID': CustomerID
+            'CustomerID': id
         }
     )
     item = response['Item']
     print(item)
 
 
-def update_intent(CustomerID, **kwargs):
+def update_intent(id, **kwargs):
     for key, value in kwargs.items():
         table.update_item(
             Key={
-                'CustomerID': CustomerID
+                'CustomerID': id
             },
             UpdateExpression=f'SET {key} = :vary',
             ExpressionAttributeValues={
@@ -59,9 +59,9 @@ def update_intent(CustomerID, **kwargs):
         )
 
 
-def delete_intent(CustomerID):
+def delete_intent(id):
     table.delete_item(
         Key={
-            'CustomerID': CustomerID
+            'CustomerID': id
         }
     )
