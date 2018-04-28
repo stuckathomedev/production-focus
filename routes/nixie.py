@@ -30,7 +30,7 @@ def serve_pil_image(pil_img):
 
 
 @routes.route('/generate_nixie')
-def users():
+def nixie():
     pattern = request.args.get('pattern')
     width, height = nixies[0].size
     total_width = width * len(pattern)
