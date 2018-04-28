@@ -155,16 +155,22 @@ def session_ended():
 def search_for_task(search_string):
     #delete_words = stopwords.words('english')
     #terms = [word for word in search_string.split() if word not in delete_words]
-    #matching_tasks = [task for task in tasks if
-    #                  all(term for term in terms if task.description.find(term) != 1)]
-    #return matching_tasks
+    print(db.get_all_tasks())
+    matching_tasks = [task for task in db.get_all_tasks() if
+                      all(term for term in search_string.split() if task['description'].find(term) != 1)]
+    return matching_tasks
     pass
 
 
 def get_divergence_meter() -> float:
-    #divergence = completions / trials
-    #return divergence
-    pass
+    all_tasks = db.get_all_tasks()
+    trials = sum([task['trials'] for task in all_tasks])
+    completions = sum([task['completions'] for task in all_tasks])
+    if trials == 0:
+        return 0
+
+    divergence = ((trials - completions) / trials) * 100
+    return divergence
 
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
@@ -172,22 +178,35 @@ def handle_create_todo(description, due_date, due_time):
     if due_date is None:
         due_date = date.today()
 
-    db.create_task(uuid4(), description, False, due_date() )
+    db.create_task(uuid4(), session.user.userId, description, False, (due_date - date.today()).days, due_time)
 
-    created_text = render_template("created_todo", description=description, due_date=due_date, due_time=due_time)
-    # todo upload to dynamodb
+    created_text = render_template("created_todo",
+                                   description=description,
+                                   due_date=due_date,
+                                   due_time=due_time)
     return statement(created_text)
 
 
 @ask.intent('CreateReminderIntent', convert={'due_time': 'time'})
-def handle_create_reminder(description, repeat_interval, due_time):
+def handle_create_reminder(description, due_time):
     # this is terrible but it basically extracts the actual matched slot from Alexa
     # so "every two days" is converted into the canonical "every 2 days" slot as
     # described in the intent schema
 
     repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
 
-    db.create_task(uuid4(), description, True, repeat_interval, 0, 0, 0, 0)
+    if repeat_interval == "every week":
+        day_interval = 7
+    elif repeat_interval == "every 3 days":
+        day_interval = 3
+    elif repeat_interval == "every 2 days":
+        day_interval = 2
+    elif repeat_interval == "every day":
+        day_interval = 1
+    else:
+        raise ValueError("Unknown days_until")
+
+    db.create_task(uuid4(), session.user.userId, description, True, day_interval, due_time)
     created_text = render_template("created_reminder",
                                    description=description,
                                    repeat_interval=repeat_interval,
@@ -202,11 +221,12 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    return statement(render_template("divergence_meter", meter="0.00"))\
+    divergence = "{0:.6f}".format(get_divergence_meter())
+    return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
-                       text="0.00",
-                       small_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187",
-                       large_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187")
+                       text=divergence,
+                       small_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}",
+                       large_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}")
 
 
 @ask.intent('ViewHappinessIntent')
@@ -222,10 +242,11 @@ def handle_delete_task(description):
     if len(matches) > 1:
         return statement(render_template("more_than_one_match",
                                          num=len(matches),
-                                         descriptions=str([match.description for match in matches])))
+                                         descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    return statement(render_template("deleting_task", description=match.description))
+    db.delete_intent(match['CustomerID'])
+    return statement(render_template("deleting_task", description=match['description']))
 
 
 @ask.intent('ViewMailboxIntent')
@@ -241,10 +262,12 @@ def handle_complete_task(description):
     if len(matches) > 1:
         return statement(render_template("more_than_one_match",
                                          num=len(matches),
-                                         descriptions=str([match.description for match in matches])))
+                                         descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    return statement(render_template("completed_task", description=match.description, meter=get_divergence_meter()))
+    db.update_intent(match['CustomerID'], completed=True)
+
+    return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
 
 
 if __name__ == '__main__':

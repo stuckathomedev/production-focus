@@ -8,6 +8,7 @@ from PIL import Image
 
 # By Hellbus under CC-SA 3.0
 # https://commons.wikimedia.org/wiki/File:Z566M_digit_0.jpg & others
+
 nixies = list(map(Image.open, ["img/0.jpg",
                           "img/1.jpg",
                           "img/2.jpg",
@@ -29,7 +30,7 @@ def serve_pil_image(pil_img):
 
 
 @routes.route('/generate_nixie')
-def users():
+def nixie():
     pattern = request.args.get('pattern')
     width, height = nixies[0].size
     total_width = width * len(pattern)

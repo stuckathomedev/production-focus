@@ -25,7 +25,7 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
-# General information about the project.
+# General information about the project & its authors.
 project = 'production_focus'
 copyright = '2017, Stuck@Home'
 author = 'Stuck@Home'
