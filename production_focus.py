@@ -6,17 +6,21 @@
 # An alexa skill to focus your production
 
 import logging
-from datetime import datetime, date, time
+from datetime import datetime, date
+from uuid import uuid4
 
 from nltk.corpus import stopwords
 from flask import Flask, json, render_template
 from flask_ask import Ask, request, session, question, statement
+import db
+from routes import routes
 
 __author__ = 'Stuck@Home'
 __email__ = 'h0m3stuck@gmail.com'
 
 
 app = Flask(__name__)
+app.register_blueprint(routes)
 ask = Ask(app, '/')
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 
@@ -148,22 +152,26 @@ def session_ended():
 
 
 def search_for_task(search_string):
-    delete_words = stopwords.words('english')
-    terms = [word for word in search_string.split() if word not in delete_words]
-    matching_tasks = [task for task in tasks if
-                      all(term for term in terms if task.description.find(term) != 1)]
-    return matching_tasks
+    #delete_words = stopwords.words('english')
+    #terms = [word for word in search_string.split() if word not in delete_words]
+    #matching_tasks = [task for task in tasks if
+    #                  all(term for term in terms if task.description.find(term) != 1)]
+    #return matching_tasks
+    pass
 
 
 def get_divergence_meter() -> float:
-    divergence = completions / trials
-    return divergence
+    #divergence = completions / trials
+    #return divergence
+    pass
 
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
     if due_date is None:
         due_date = date.today()
+
+    db.create_task(uuid4(), description, False, due_date() )
 
     created_text = render_template("created_todo", description=description, due_date=due_date, due_time=due_time)
     # todo upload to dynamodb
@@ -175,12 +183,14 @@ def handle_create_reminder(description, repeat_interval, due_time):
     # this is terrible but it basically extracts the actual matched slot from Alexa
     # so "every two days" is converted into the canonical "every 2 days" slot as
     # described in the intent schema
+
     repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+
+    db.create_task(uuid4(), description, True, repeat_interval, 0, 0, 0, 0)
     created_text = render_template("created_reminder",
                                    description=description,
                                    repeat_interval=repeat_interval,
                                    due_time=due_time)
-    # todo upload to dynamodb
     return statement(created_text)
 
 
@@ -191,7 +201,11 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    return statement(render_template("divergence_meter", meter=get_divergence_meter()))
+    return statement(render_template("divergence_meter", meter="0.00"))\
+        .standard_card(title="Divergence Meter",
+                       text="0.00",
+                       small_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187",
+                       large_image_url="https://production-focus2.localtunnel.me/generate_nixie?pattern=0.337187")
 
 
 @ask.intent('ViewHappinessIntent')
