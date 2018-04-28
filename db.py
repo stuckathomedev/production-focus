@@ -23,7 +23,7 @@ def create_task(id, user_id, description, is_recurring, days_until, due_time):
             'description': description,
             'is_recurring': is_recurring,
             'completed': False,
-            'last_completed': date.today(),
+            'last_completed': str(date.today()),
             'days_until': days_until, # The number of days until the reminder triggers
             'due_time': str(due_time), # The specific time that the reminder should be triggered
             'completions': 0, # How many times one has completed the scheduled task

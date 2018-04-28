@@ -163,8 +163,10 @@ def search_for_task(search_string):
 
 def get_divergence_meter() -> float:
     all_tasks = db.get_all_tasks()
-    trials = sum([task.trials for task in all_tasks])
-    completions = sum([task.completions for task in all_tasks])
+    trials = sum([task['trials'] for task in all_tasks])
+    completions = sum([task['completions'] for task in all_tasks])
+    if trials == 0:
+        return 0
 
     divergence = ((trials - completions) / trials) * 100
     return divergence
@@ -218,12 +220,12 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    divergence = get_divergence_meter()
+    divergence = "{0:.6f}".format(get_divergence_meter())
     return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
                        text=divergence,
-                       small_image_url=f"https://production-focus2.localtunnel.me/generate_nixie?pattern={divergence}",
-                       large_image_url=f"https://production-focus2.localtunnel.me/generate_nixie?pattern={divergence}")
+                       small_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}",
+                       large_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}")
 
 
 @ask.intent('ViewHappinessIntent')
