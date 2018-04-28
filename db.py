@@ -10,28 +10,28 @@ def table_item_count():
 
 
 def table_creation_time():
-    print(table.creation_date_time)
+    print(table.creation_time)
 
 
-def create_task(id, title, contents, is_recurring, task_status, date, completions, trials, net_happiness, net_money):
+def create_task(id, description, is_recurring, duration_interval, due_time, completions, trials, net_happiness, net_money):
     if trials > 0:
-        completion_rate = completions/trials*100
+        completion_rate = completions / trials * 100
     else:
         completion_rate = 0
 
     table.put_item(
         Item={
             'CustomerID': id,
-            'title': title,
-            'contents': contents,
+            'description': description,
             'is_recurring': is_recurring,
-            'status': task_status,
-            'date': date,
-            'completions': completions,
-            'trials': trials,
-            'net_happiness': net_happiness,
-            'net_money': net_money,
-            'completion_rate': completion_rate,
+            'completed': False,
+            'days_until': days_interval, # The number of days until the reminder triggers
+            'due_time': due_time, # The specific time that the reminder should be triggered
+            'completions': completions, # How many times one has completed the scheduled task
+            'trials': trials, # The number of times that the task has executed
+            'net_happiness': net_happiness, # Generated from DIVERGENCE
+            'net_money': net_money, # Money based on happiness generation et al. Also gives features.
+            'completion_rate': completion_rate, #Percentage per task
         }
     )
 
