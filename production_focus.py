@@ -13,12 +13,14 @@ from nltk.corpus import stopwords
 from flask import Flask, json, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
+from routes import routes
 
 __author__ = 'Stuck@Home'
 __email__ = 'h0m3stuck@gmail.com'
 
 
 app = Flask(__name__)
+app.register_blueprint(routes)
 ask = Ask(app, '/')
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 
@@ -183,7 +185,6 @@ def handle_create_reminder(description, repeat_interval, due_time):
     # described in the intent schema
 
     repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
-    if repeat_interval == "on the weekend":
 
     db.create_task(uuid4(), description, True, repeat_interval, 0, 0, 0, 0)
     created_text = render_template("created_reminder",
