@@ -6,7 +6,7 @@
 # An alexa skill to focus your production
 
 import logging
-from datetime import datetime
+from datetime import datetime, date, time
 from flask import Flask, json, render_template
 from flask_ask import Ask, request, session, question, statement
 
@@ -147,6 +147,9 @@ def session_ended():
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
+    if due_date is None:
+        due_date = date.today()
+
     created_text = render_template("created_todo", description=description, due_date=due_date, due_time=due_time)
     # todo upload to dynamodb
     return statement(created_text)
