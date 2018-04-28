@@ -18,3 +18,6 @@ help_text: |
 
 created_todo: |
   Okay, I'll make sure you {{ description }} on {{ due_date }} at {{ due_time }}.
+
+created_reminder: |
+  Okay, I'll remind you to {{ description }} {{ repeat_interval }} at {{ due_time }}.

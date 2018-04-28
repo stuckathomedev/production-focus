@@ -155,5 +155,17 @@ def handle_create_todo(description, due_date, due_time):
     return statement(created_text)
 
 
+
+
+@ask.intent('CreateReminderIntent', convert={'due_time': 'time'})
+def handle_create_reminder(description, repeat_interval, due_time):
+    created_text = render_template("created_reminder",
+                                   description=description,
+                                   repeat_interval=repeat_interval,
+                                   due_time=due_time)
+    # todo upload to dynamodb
+    return statement(created_text)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
