@@ -145,5 +145,12 @@ def session_ended():
     return statement("")
 
 
+@ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
+def handle_create_todo(description, due_date, due_time):
+    created_text = render_template("created_todo", description=description, due_date=due_date, due_time=due_time)
+    # todo upload to dynamodb
+    return statement(created_text)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

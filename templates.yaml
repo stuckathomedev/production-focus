@@ -15,3 +15,6 @@ cancel_bye: |
 
 help_text: |
   production_focus is an Alexa skill that does things. This is where the developer would normally explain how to do them.
+
+created_todo: |
+  Okay, I'll make sure you {{ description }} on {{ due_date }} at {{ due_time }}.
