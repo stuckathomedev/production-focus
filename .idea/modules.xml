@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/production-focus.iml" filepath="$PROJECT_DIR$/.idea/production-focus.iml" />
-      <module fileurl="file://C:/Users/nitro/PycharmProjects/test_neural_network/.idea/test_neural_network.iml" filepath="C:/Users/nitro/PycharmProjects/test_neural_network/.idea/test_neural_network.iml" />
-    </modules>
-  </component>
-</project>
