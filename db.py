@@ -15,10 +15,10 @@ def table_creation_time():
     print(table.creation_time)
 
 
-def create_task(id, user_id, description, is_recurring, days_until, due_time):
+def create_task(task_id, user_id, description, is_recurring, days_until, due_time):
     table.put_item(
         Item={
-            'CustomerID': str(id),
+            'task_id': str(task_id),
             'user_id': user_id,
             'description': description,
             'is_recurring': is_recurring,
@@ -31,21 +31,21 @@ def create_task(id, user_id, description, is_recurring, days_until, due_time):
         }
     )
 
-def search_task(id):
+def search_task(task_id):
     response = table.get_item(
         Key={
-            'CustomerID': id
+            'task_id': task_id
         }
     )
     item = response['Item']
     print(item)
 
 
-def update_intent(id, **kwargs):
+def update_intent(task_id, **kwargs):
     for key, value in kwargs.items():
         table.update_item(
             Key={
-                'CustomerID': id
+                'task_id': task_id
             },
             UpdateExpression=f'SET {key} = :vary',
             ExpressionAttributeValues={
@@ -61,10 +61,10 @@ def get_all_tasks():
     )['Items']
 
 
-def delete_intent(id):
+def delete_intent(task_id):
     table.delete_item(
         Key={
-            'CustomerID': id
+            'task_id': task_id
         }
     )
 

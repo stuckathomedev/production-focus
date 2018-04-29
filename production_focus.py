@@ -244,7 +244,7 @@ def handle_delete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.delete_intent(match['CustomerID'])
+    db.delete_intent(match['task_id'])
     return statement(render_template("deleting_task", description=match['description']))
 
 
@@ -264,13 +264,13 @@ def handle_complete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.update_intent(match['CustomerID'], completions=match['completions'] + 1)
+    db.update_intent(match['task_id'], completions=match['completions'] + 1)
     if match['is_recurring'] == True:
         # TODO impl multiple missing trials
-        db.update_intent(match['CustomerID'], last_completed=str(date.today()), trials=match['trials'] + 1)
+        db.update_intent(match['task_id'], last_completed=str(date.today()), trials=match['trials'] + 1)
         return statement(render_template("completed_reminder", description=match['description'], ))
     else:
-        db.update_intent(match['CustomerID'], completed=True, trials=match['trials'] + 1)
+        db.update_intent(match['task_id'], completed=True, trials=match['trials'] + 1)
         return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
 
 
