@@ -1,5 +1,5 @@
 from twilio.rest import Client
-from db import get_all_user_tasks, get_phone_number
+from db import get_all_tasks, get_phone_number
 import algorithms
 import datetime
 from datetime import date, time, timedelta
@@ -54,17 +54,14 @@ def due_within_hour(task):
     else:
         return days_since_completed == task['days_until'] and time_within_hour
 
-def send_completion_reminders(user_id):
-    user_results = [task for task in get_all_user_tasks(user_id) if due_within_hour(task)]
-    phone_number = get_phone_number(user_id)
-    if phone_number is None:
-        return
+def send_completion_reminders():
+    results = [task for task in get_all_tasks() if due_within_hour(task)]
 
-    for x in user_results:
+    for x in results:
+        phone_number = get_phone_number(x['user_id'])
+        if phone_number is None:
+            continue
+
         divergence = algorithms.calculate_divergence(x)
         if divergence > 50 and due_within_hour(x):
             send_completion(phone_number, divergence, x['description'])
-        else:
-            continue
-    return 0
-
