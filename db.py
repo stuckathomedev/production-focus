@@ -4,19 +4,20 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-table = dynamodb.Table('Tasks')
+tasks = dynamodb.Table('Tasks')
+phone_numbers = dynamodb.Table('PhoneNumbers')
 
 
 def table_item_count():
-    print(table.item_count)
+    print(tasks.item_count)
 
 
 def table_creation_time():
-    print(table.creation_time)
+    print(tasks.creation_time)
 
 
 def create_task(task_id, user_id, description, is_recurring, days_until, due_time):
-    table.put_item(
+    tasks.put_item(
         Item={
             'task_id': str(task_id),
             'user_id': user_id,
@@ -32,7 +33,7 @@ def create_task(task_id, user_id, description, is_recurring, days_until, due_tim
     )
 
 def get_task(user_id, task_id):
-    response = table.get_item(
+    response = tasks.get_item(
         Key={
             'user_id': user_id,
             'task_id': task_id
@@ -44,7 +45,7 @@ def get_task(user_id, task_id):
 
 def update_task(user_id, task_id, **kwargs):
     for key, value in kwargs.items():
-        table.update_item(
+        tasks.update_item(
             Key={
                 'user_id': user_id,
                 'task_id': task_id
@@ -57,22 +58,23 @@ def update_task(user_id, task_id, **kwargs):
 
 def get_all_tasks():
     # TODO paginate when tasks > 1 MB
-    return table.scan(
+    return tasks.scan(
         Select='ALL_ATTRIBUTES',
         ConsistentRead=True
     )['Items']
 
 
 def delete_task(user_id, task_id):
-    table.delete_item(
+    tasks.delete_item(
         Key={
             'user_id': user_id,
             'task_id': task_id
         }
     )
 
+
 def get_all_user_tasks(user_id):
-    response = table.query(
+    response = tasks.query(
         KeyConditionExpression='user_id = :user_id',
         Select='ALL_ATTRIBUTES',
         ExpressionAttributeNames={
@@ -82,3 +84,17 @@ def get_all_user_tasks(user_id):
     items = response['Items']
     print(items)
     return items
+
+
+def get_phone_number(user_id):
+    response = phone_numbers.get_item(Key={'user_id': user_id})
+    if response.get('Item') is None:
+        return None
+    else:
+        return response['Item']['number']
+
+
+def set_phone_number(user_id, number):
+    phone_numbers.put_item(
+        Item={'user_id': user_id, 'number': number}
+    )

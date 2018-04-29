@@ -273,5 +273,11 @@ def handle_complete_task(description):
         return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
 
 
+@ask.intent('SetPhoneNumberIntent')
+def handle_set_phone_number(number):
+    db.set_phone_number(session.user.userId, number)
+    return statement(render_template("set_phone_number", number=number))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

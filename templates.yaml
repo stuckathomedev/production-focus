@@ -36,3 +36,6 @@ completed_task: |
 
 divergence_meter: |
   Your current divergence meter is: {{ meter }}.
+
+set_phone_number: |
+  Okay, your phone number for notifications is now {{ number }}.
