@@ -13,6 +13,7 @@ from nltk.corpus import stopwords
 from flask import Flask, json, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
+import algorithms
 from routes import routes
 import threading
 
@@ -161,16 +162,6 @@ def search_for_task(search_string):
     return matching_tasks
 
 
-def get_divergence_meter() -> float:
-    user_tasks = db.get_all_user_tasks(session.user.userId)
-    trials = sum([task['trials'] for task in user_tasks])
-    completions = sum([task['completions'] for task in user_tasks])
-    if trials == 0:
-        return 0
-    else:
-        return ((trials - completions) / trials) * 100
-
-
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
     if due_date is None:
@@ -219,7 +210,8 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    divergence = "{0:.6f}".format(get_divergence_meter())
+    user_tasks = db.get_all_user_tasks(session.user.userId)
+    divergence = "{0:.6f}".format(algorithms.get_overall_divergence(user_tasks))
     return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
                        text=divergence,
