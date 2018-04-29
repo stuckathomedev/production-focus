@@ -162,14 +162,13 @@ def search_for_task(search_string):
 
 
 def get_divergence_meter() -> float:
-    all_tasks = db.get_all_tasks()
-    trials = sum([task['trials'] for task in all_tasks])
-    completions = sum([task['completions'] for task in all_tasks])
+    user_tasks = db.get_all_user_tasks(session.user.userId)
+    trials = sum([task['trials'] for task in user_tasks])
+    completions = sum([task['completions'] for task in user_tasks])
     if trials == 0:
         return 0
-
-    divergence = ((trials - completions) / trials) * 100
-    return divergence
+    else:
+        return ((trials - completions) / trials) * 100
 
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})

@@ -17,7 +17,7 @@ def send_message(dest_time, mensaje):
                                              from_="+16176827988",
                                              body=mensaje)
             print("message sent!")
-            break;
+            break
 
 
 def send_completion(dest_time, completion, description):
@@ -54,3 +54,4 @@ def send_completion_reminders(user_id, time):
         else:
             continue
     return 0
+
