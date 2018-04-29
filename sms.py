@@ -44,6 +44,8 @@ def due_within_hour(task):
     days_since_completed = (date.today() - completed).days
     time_within_hour = (datetime.datetime.now() - datetime.datetime.combine(date.today(), task['due_time'])).seconds <= 3600
 
+    print(task, "due within hour:", time_within_hour)
+
     if task['is_recurring'] == True:
         if (days_since_completed % task['days_until'] == 0
                 and time_within_hour):
