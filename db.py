@@ -31,9 +31,10 @@ def create_task(task_id, user_id, description, is_recurring, days_until, due_tim
         }
     )
 
-def search_task(task_id):
+def get_task(user_id, task_id):
     response = table.get_item(
         Key={
+            'user_id': user_id,
             'task_id': task_id
         }
     )
@@ -41,10 +42,11 @@ def search_task(task_id):
     print(item)
 
 
-def update_intent(task_id, **kwargs):
+def update_task(user_id, task_id, **kwargs):
     for key, value in kwargs.items():
         table.update_item(
             Key={
+                'user_id': user_id,
                 'task_id': task_id
             },
             UpdateExpression=f'SET {key} = :vary',
@@ -61,19 +63,22 @@ def get_all_tasks():
     )['Items']
 
 
-def delete_intent(task_id):
+def delete_task(user_id, task_id):
     table.delete_item(
         Key={
+            'user_id': user_id,
             'task_id': task_id
         }
     )
 
-def search_by_user(user_id):
-    response = table.get_item(
-        Key={
-            'user_id': user_id
+def get_all_user_tasks(user_id):
+    response = table.query(
+        KeyConditionExpression='user_id = :user_id',
+        Select='ALL_ATTRIBUTES',
+        ExpressionAttributeNames={
+            ':user_id': user_id
         }
     )
-    item = response['Item']
-    print(item)
-    return(item)
+    items = response['Items']
+    print(items)
+    return items

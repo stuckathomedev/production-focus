@@ -156,7 +156,7 @@ def search_for_task(search_string):
     print(search_string)
     #delete_words = stopwords.words('english')
     #terms = [word for word in search_string.split() if word not in delete_words]
-    matching_tasks = [task for task in db.get_all_tasks() if
+    matching_tasks = [task for task in db.get_all_user_tasks(session.user.userId) if
                       search_string in task['description']]
     return matching_tasks
 
@@ -244,7 +244,7 @@ def handle_delete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.delete_intent(match['task_id'])
+    db.delete_task(session.user.userId, match['task_id'])
     return statement(render_template("deleting_task", description=match['description']))
 
 
@@ -264,13 +264,13 @@ def handle_complete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.update_intent(match['task_id'], completions=match['completions'] + 1)
+    db.update_task(session.user.userId, match['task_id'], completions=match['completions'] + 1)
     if match['is_recurring'] == True:
         # TODO impl multiple missing trials
-        db.update_intent(match['task_id'], last_completed=str(date.today()), trials=match['trials'] + 1)
+        db.update_task(session.user.userId, match['task_id'], last_completed=str(date.today()), trials=match['trials'] + 1)
         return statement(render_template("completed_reminder", description=match['description'], ))
     else:
-        db.update_intent(match['task_id'], completed=True, trials=match['trials'] + 1)
+        db.update_task(session.user.userId, match['task_id'], completed=True, trials=match['trials'] + 1)
         return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
 
 

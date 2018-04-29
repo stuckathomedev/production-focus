@@ -1,5 +1,5 @@
 from twilio.rest import Client
-from db import search_by_user
+from db import get_all_user_tasks
 import datetime
 import threading
 
@@ -43,7 +43,7 @@ def send_message_completion(time, completion, description):
 
 
 def send_completion_reminders(user_id, time):
-    user_results = search_by_user(user_id)
+    user_results = get_all_user_tasks(user_id)
     for x in user_results:
         completions = x[completions]
         trials = x[trials]
