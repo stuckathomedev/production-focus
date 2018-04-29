@@ -31,7 +31,6 @@ def create_task(id, user_id, description, is_recurring, days_until, due_time):
         }
     )
 
-
 def search_task(id):
     response = table.get_item(
         Key={
@@ -68,3 +67,13 @@ def delete_intent(id):
             'CustomerID': id
         }
     )
+
+def search_by_user(user_id):
+    response = table.get_item(
+        Key={
+            'user_id': user_id
+        }
+    )
+    item = response['Item']
+    print(item)
+    return(item)

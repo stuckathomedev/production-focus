@@ -1,4 +1,5 @@
 from twilio.rest import Client
+from db import search_by_user
 import datetime
 import threading
 
@@ -19,14 +20,14 @@ def send_message(dest_time, mensaje):
             break;
 
 
-def send_divergance(dest_time, divergance):
+def send_completion(dest_time, completion, description):
     while True:
         now = datetime.datetime.now()
         time_current = (now.strftime("%H:%M"))
         if time_current == dest_time:
             message = client.messages.create(to="9788448697",
                                              from_="+16176827988",
-                                             body="Your current divergence is: " + divergance + "!")
+                                             body="Your current completion rate for your intent of: '" + description + " is currently at:" + completion + "% You may want to step it up or consider cancelling!")
             print("message sent!")
             break;
 
@@ -36,6 +37,20 @@ def send_message_thread(time, message):
     t.start()
 
 
-def send_message_divergance(time, divergance):
-    t = threading.Thread(target=send_divergance, args=(time, divergance))
+def send_message_completion(time, completion, description):
+    t = threading.Thread(target=send_completion, args=(time, completion, description))
     t.start()
+
+
+def send_completion_reminders(user_id, time):
+    user_results = search_by_user(user_id)
+    for x in user_results:
+        completions = x[completions]
+        trials = x[trials]
+        description = x[description]
+        divergance = (completions / trials)*100
+        if divergance > 50:
+            send_message_completion(time, divergance, description)
+        else:
+            continue
+    return 0
