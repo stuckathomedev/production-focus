@@ -43,7 +43,7 @@ def send_message_completion(time, completion, description):
 def due_within_hour(task):
     completed = dateparser.parse(task['last_completed']).date()
     days_since_completed = (date.today() - completed).days
-    time_within_hour = (datetime.datetime.now() - datetime.datetime.combine(date.today(), task['due_time'])).seconds <= 3600
+    time_within_hour = (datetime.datetime.now() - datetime.datetime.combine(date.today(), dateparser.parse(task['due_time']).time())).seconds <= 3600
 
     print(task, "due within hour:", time_within_hour)
 
