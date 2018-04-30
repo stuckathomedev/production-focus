@@ -16,6 +16,18 @@ cancel_bye: |
 help_text: |
   production_focus is an Alexa skill that does things. This is where the developer would normally explain how to do them.
 
+all_tasks: |
+  {% if tasks|length == 0 %}
+  You have no tasks
+  {% else %}
+  Your current tasks are:
+
+  {% for task in tasks %}
+  {{ task['description'] }} due at {{ task['due_time'] }},
+  {{ task['days_until'] }} days after {{ task['last_completed'] }}.
+  {% endfor %}
+  {% endif %}
+
 created_todo: |
   Okay, I'll make sure you {{ description }} on {{ due_date }} at {{ due_time }}.
 

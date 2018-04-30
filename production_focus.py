@@ -219,7 +219,7 @@ def handle_create_reminder(description, due_time):
 
 @ask.intent('ViewTasksIntent')
 def handle_view_tasks():
-    pass
+    return statement(render_template("all_tasks", tasks=db.get_all_user_tasks(session.user.userId)))
 
 
 @ask.intent('ViewDivergenceMeterIntent')
