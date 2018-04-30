@@ -36,3 +36,6 @@ completed_task: |
 
 divergence_meter: |
   Your current divergence meter is: {{ meter }}.
+
+no_params: |
+  Sorry, and error has occured. Either parameters have not been provided or not enough have been provided.

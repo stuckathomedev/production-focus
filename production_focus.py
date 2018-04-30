@@ -174,6 +174,8 @@ def get_divergence_meter() -> float:
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
+    if description is None or due_time is None:
+        return statement(render_template("no_params"))
     if due_date is None:
         due_date = date.today()
 
@@ -191,6 +193,11 @@ def handle_create_reminder(description, due_time):
     # this is terrible but it basically extracts the actual matched slot from Alexa
     # so "every two days" is converted into the canonical "every 2 days" slot as
     # described in the intent schema
+    # if description is None or due_time is None:
+    #     raise Exception("Required parameters have not been provided.")
+
+    if description is None or due_time is None:
+        return statement(render_template("no_params"))
 
     repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
 
@@ -235,6 +242,10 @@ def handle_view_happiness():
 
 @ask.intent('DeleteTaskIntent')
 def handle_delete_task(description):
+
+    if description is None:
+        return statement(render_template("no_params"))
+
     matches = search_for_task(description)
     if len(matches) == 0:
         return statement(render_template("no_matches"))
@@ -255,6 +266,10 @@ def handle_view_mailbox():
 
 @ask.intent('CompleteTaskIntent')
 def handle_complete_task(description):
+
+    if description is None:
+        return statement(render_template("no_params"))
+
     matches = search_for_task(description)
     if len(matches) == 0:
         return statement(render_template("no_matches"))
