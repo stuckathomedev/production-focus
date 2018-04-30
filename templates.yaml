@@ -46,6 +46,15 @@ more_than_one_match: |
 no_matches: |
   Sorry, no matches were found with your search criteria.
 
+no_desc: |
+  Sorry, could you repeat that with your task's description?
+
+no_due_time: |
+  Sorry, could you repeat that and specify your task's due date?
+
+reprompt: |
+  I didn't quite get that. Please state again what you would like me to do.
+
 todo_already_done: |
   Sorry, but you've already completed this todo item!
 

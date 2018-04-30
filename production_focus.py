@@ -164,8 +164,10 @@ def search_for_task(search_string):
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
 def handle_create_todo(description, due_date, due_time):
-    if description is None or due_time is None:
-        return statement(render_template("no_params"))
+    if description is None:
+        return question(render_template("no_desc")).reprompt(render_template("reprompt"))
+    if due_time is None:
+        return question(render_template("no_due_time")).reprompt(render_template("reprompt"))
     if due_date is None:
         due_date = date.today()
     if due_date < date.today():
@@ -189,7 +191,7 @@ def handle_create_reminder(description, due_time):
     #     raise Exception("Required parameters have not been provided.")
 
     if description is None or due_time is None:
-        return statement(render_template("no_params"))
+        return question(render_template("no_params"))
 
     try:
         repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
@@ -244,7 +246,8 @@ def handle_view_happiness():
 @ask.intent('DeleteTaskIntent')
 def handle_delete_task(description):
     if description is None:
-        return statement(render_template("no_params"))
+        return question(render_template("no_desc"))\
+            .reprompt("reprompt")
 
     matches = search_for_task(description)
     descriptions = list(map(lambda task: task['description'], matches))
@@ -282,7 +285,8 @@ def reminder_doable_today(task):
 @ask.intent('CompleteTaskIntent')
 def handle_complete_task(description):
     if description is None:
-        return statement(render_template("no_params"))
+        return question(render_template("no_desc"))\
+            .reprompt(render_template("reprompt"))
 
     # Only get undone tasks matching the description
     matches = search_for_task(description)
