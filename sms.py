@@ -2,6 +2,7 @@ from twilio.rest import Client
 from db import get_all_tasks, get_phone_number
 import algorithms
 import datetime
+import dateparser
 from datetime import date, time, timedelta
 import threading
 
@@ -40,7 +41,7 @@ def send_message_completion(time, completion, description):
 
 
 def due_within_hour(task):
-    completed = date(task['last_completed'])
+    completed = dateparser.parse(task['last_completed']).date()
     days_since_completed = (date.today() - completed).days
     time_within_hour = (datetime.datetime.now() - datetime.datetime.combine(date.today(), task['due_time'])).seconds <= 3600
 

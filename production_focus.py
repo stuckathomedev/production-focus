@@ -6,11 +6,12 @@
 # An alexa skill to focus your production
 
 import logging
+from urllib.parse import urlparse
 from datetime import datetime, date
 from uuid import uuid4
 
 from nltk.corpus import stopwords
-from flask import Flask, json, render_template
+from flask import Flask, request as flask_request, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
 import algorithms
@@ -212,11 +213,14 @@ def handle_view_tasks():
 def handle_view_divergence_meter():
     user_tasks = db.get_all_user_tasks(session.user.userId)
     divergence = "{0:.6f}".format(algorithms.get_overall_divergence(user_tasks))
+    uri = urlparse(flask_request.url)
+    divergence_url = f"{uri.scheme}://{uri.netloc}/production/generate_nixie?pattern={divergence}"
+    print("Got divergence: ", divergence)
     return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
                        text=divergence,
-                       small_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}",
-                       large_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}")
+                       small_image_url=divergence_url,
+                       large_image_url=divergence_url)
 
 
 @ask.intent('ViewHappinessIntent')

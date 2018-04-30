@@ -75,10 +75,10 @@ def delete_task(user_id, task_id):
 
 def get_all_user_tasks(user_id):
     response = tasks.query(
-        KeyConditionExpression='user_id = :user_id',
+        KeyConditionExpression='user_id = :varx',
         Select='ALL_ATTRIBUTES',
-        ExpressionAttributeNames={
-            ':user_id': user_id
+        ExpressionAttributeValues={
+            ':varx': user_id
         }
     )
     items = response['Items']
