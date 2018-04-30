@@ -4,10 +4,10 @@ import algorithms
 import datetime
 import dateparser
 from datetime import date
+from ignore import account_id
+from ignore import auth
 
-account = "AC5324f49019d53ba87268a99cdb0fa482"
-token = "87d3d6ffae6e6f81b9b2a6f5879c589e"
-client = Client(account, token)
+client = Client(account_id, auth)
 
 
 def send_completion(phone_number, completion, description):

@@ -68,3 +68,4 @@ ENV/
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+ignore.py
