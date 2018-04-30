@@ -192,7 +192,10 @@ def handle_create_reminder(description, due_time):
     if description is None or due_time is None:
         return statement(render_template("no_params"))
 
-    repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+    try:
+        repeat_interval = request["intent"]["slots"]["repeat_interval"]["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+    except:
+        return statement(render_template("unknown_day_interval"))
 
     if repeat_interval == "every week":
         day_interval = 7
@@ -203,7 +206,9 @@ def handle_create_reminder(description, due_time):
     elif repeat_interval == "every day":
         day_interval = 1
     else:
-        raise ValueError("Unknown days_until")
+        # Subtly different from above try-except, because this means Alexa
+        # successfully parsed a day interval, but *we* don't know what it is
+        raise ValueError("Unknown day_interval received")
 
     db.create_task(uuid4(), session.user.userId, description, True, day_interval, due_time)
     created_text = render_template("created_reminder",

@@ -49,5 +49,8 @@ set_phone_number: |
     <say-as interpret-as="telephone">{{ number }}</say-as>.
   </speak>
 
+unknown_day_interval: |
+  Sorry, I didn't catch that repeat interval. Try something like "daily", "every 2 days', or "every 3 days".
+
 time_travel_is_prohibited: |
   Sorry, but as of yet we don't know about any form of time travel.
