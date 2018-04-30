@@ -34,6 +34,12 @@ more_than_one_match: |
 no_matches: |
   Sorry, no matches were found with your search criteria.
 
+todo_already_done: |
+  Sorry, but you've already completed this todo item!
+
+reminder_not_yet_due: |
+  Sorry, but this reminder cannot be done again yet.
+
 completed_todo: |
   Congratulations on completing your todo to {{ description }}! Your divergence meter is now {{ task_divergence }}
   for this todo, and {{ overall_divergence }} overall.

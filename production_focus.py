@@ -271,21 +271,33 @@ def handle_view_mailbox():
     pass
 
 
+def reminder_doable_today(task):
+    if task['is_recurring'] == True:
+        next_due_on = dateparser.parse(task['last_completed']).date() + timedelta(days=int(task['days_until']))
+        return next_due_on == date.today()
+    else:
+        return True  # lel
+
+
 @ask.intent('CompleteTaskIntent')
 def handle_complete_task(description):
     if description is None:
         return statement(render_template("no_params"))
 
     # Only get undone tasks matching the description
-    matches = [task for task in search_for_task(description) if task['completed'] == False]
+    matches = search_for_task(description)
     if len(matches) == 0:
         return statement(render_template("no_matches"))
     if len(matches) > 1:
         return statement(render_template("more_than_one_match",
                                          num=len(matches),
                                          descriptions=str([match['description'] for match in matches])))
-
     match = matches[0]
+    if match['completed'] == True:
+        return statement(render_template("todo_already_done"))
+    if reminder_doable_today(match) == False:
+        return statement(render_template("reminder_not_yet_due"))
+
     task_divergence = algorithms.calculate_divergence(match)
     overall_divergence = algorithms.get_overall_divergence(db.get_all_user_tasks(session.user.userId))
 
