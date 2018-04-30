@@ -237,7 +237,6 @@ def handle_view_happiness():
 
 @ask.intent('DeleteTaskIntent')
 def handle_delete_task(description):
-
     if description is None:
         return statement(render_template("no_params"))
 

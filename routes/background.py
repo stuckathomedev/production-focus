@@ -19,4 +19,3 @@ def serve_pil_image(pil_img):
 @routes.route('/background')
 def give_background():
     return serve_pil_image(background)
-

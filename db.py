@@ -25,12 +25,13 @@ def create_task(task_id, user_id, description, is_recurring, days_until, due_tim
             'is_recurring': is_recurring,
             'completed': False,
             'last_completed': str(date.today()),
-            'days_until': days_until, # The number of days until the reminder triggers
-            'due_time': str(due_time), # The specific time that the reminder should be triggered
-            'completions': 0, # How many times one has completed the scheduled task
-            'trials': 0, # The number of times that the task has executed
+            'days_until': days_until,  # The number of days until the reminder triggers
+            'due_time': str(due_time),  # The specific time that the reminder should be triggered
+            'completions': 0,  # How many times one has completed the scheduled task
+            'trials': 0,  # The number of times that the task has executed
         }
     )
+
 
 def get_task(user_id, task_id):
     response = tasks.get_item(
@@ -55,6 +56,7 @@ def update_task(user_id, task_id, **kwargs):
                 ':vary': value
             }
         )
+
 
 def get_all_tasks():
     # TODO paginate when tasks > 1 MB

@@ -15,6 +15,7 @@ happy = list(map(Image.open, ["img/happiness.jpg",
                               "img/happiness2nd.jpg",
                               "img/uraniumsmile.jpg"]))
 
+
 def serve_pil_image(pil_img):
     img_io = BytesIO()
     pil_img.convert('RGB').save(img_io, 'JPEG', quality=70)
@@ -28,13 +29,11 @@ def happiness():
 
     if percent >= .80:
         index = 1
-    elif percent >= .60 and percent < .80:
+    elif .60 <= percent < .80:
         index = 2
-    elif percent >= .20 and percent < .60:
+    elif .20 <= percent < .60:
         index = 0
     else:
         index = 3
 
     return serve_pil_image(happy[index])
-
-

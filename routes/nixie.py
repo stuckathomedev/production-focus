@@ -10,16 +10,16 @@ from PIL import Image
 # https://commons.wikimedia.org/wiki/File:Z566M_digit_0.jpg & others
 
 nixies = list(map(Image.open, ["img/0.jpg",
-                          "img/1.jpg",
-                          "img/2.jpg",
-                          "img/3.jpg",
-                          "img/4.jpg",
-                          "img/5.jpg",
-                          "img/6.jpg",
-                          "img/7.jpg",
-                          "img/8.jpg",
-                          "img/9.jpg",
-                          "img/decimal.jpg"]))
+                               "img/1.jpg",
+                               "img/2.jpg",
+                               "img/3.jpg",
+                               "img/4.jpg",
+                               "img/5.jpg",
+                               "img/6.jpg",
+                               "img/7.jpg",
+                               "img/8.jpg",
+                               "img/9.jpg",
+                               "img/decimal.jpg"]))
 
 
 def serve_pil_image(pil_img):
@@ -40,7 +40,7 @@ def nixie():
     x_offset = 0
     for num in pattern:
         if num == '.':
-            num = 10 # index of decimal
+            num = 10  # index of decimal
         else:
             num = int(num)
         collage.paste(nixies[num], (x_offset, 0))
