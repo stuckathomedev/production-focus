@@ -169,6 +169,8 @@ def handle_create_todo(description, due_date, due_time):
         return statement(render_template("no_params"))
     if due_date is None:
         due_date = date.today()
+    if due_date < date.today():
+        return statement(render_template("time_travel_is_prohibited"))
 
     db.create_task(uuid4(), session.user.userId, description, False, (due_date - date.today()).days, due_time)
 

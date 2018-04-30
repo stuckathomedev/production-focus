@@ -45,3 +45,6 @@ no_params: |
 
 set_phone_number: |
   Okay, your phone number for notifications is now {{ number }}.
+
+time_travel_is_prohibited: |
+  Sorry, but as of yet we don't know about any form of time travel.
