@@ -25,6 +25,9 @@ created_reminder: |
 deleting_task: |
   Okay, deleting the task with description {{ description }}.
 
+deleting_tasks: |
+  Okay, deleting the tasks with descriptions {{ descriptions }}.
+
 more_than_one_match: |
   Sorry, {{ num }} tasks were found with your search criteria. Their descriptions are: {{ descriptions }}.
 

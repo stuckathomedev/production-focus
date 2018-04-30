@@ -241,16 +241,23 @@ def handle_delete_task(description):
         return statement(render_template("no_params"))
 
     matches = search_for_task(description)
+    descriptions = list(map(lambda task: task['description'], matches))
     if len(matches) == 0:
         return statement(render_template("no_matches"))
     if len(matches) > 1:
-        return statement(render_template("more_than_one_match",
+        if len(set(descriptions)) == 1:
+            # All descriptions are identical; just delete them all
+            for task in matches:
+                db.delete_task(session.user.userId, task['task_id'])
+            return statement(render_template("deleting_tasks", descriptions=descriptions))
+        else:
+            return statement(render_template("more_than_one_match",
                                          num=len(matches),
                                          descriptions=str([match['description'] for match in matches])))
-
-    match = matches[0]
-    db.delete_task(session.user.userId, match['task_id'])
-    return statement(render_template("deleting_task", description=match['description']))
+    else:
+        match = matches[0]
+        db.delete_task(session.user.userId, match['task_id'])
+        return statement(render_template("deleting_task", description=match['description']))
 
 
 @ask.intent('ViewMailboxIntent')
