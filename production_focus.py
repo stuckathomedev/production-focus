@@ -109,14 +109,14 @@ def handle_no():
     """
     (?) Handles the 'no' built-in intention.
     """
-    pass
+    return statement(render_template("no_nothing"))
 
 @ask.intent('AMAZON.YesIntent')
 def handle_yes():
     """
     (?) Handles the 'yes'  built-in intention.
     """
-    pass
+    return statement(render_template("yes_nothing"))
 
 
 @ask.intent('AMAZON.PreviousIntent')
@@ -131,7 +131,7 @@ def start_over():
     """
     (QUESTION) Handles the 'start over!'  built-in intention.
     """
-    pass
+    return question(render_template("welcome"))
 
 
 # Ending session

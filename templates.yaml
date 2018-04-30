@@ -1,11 +1,12 @@
 welcome: |
-  production_focus.
+  Welcome to Production Focus.
 
 welcome_re: |
-  production_focus. How may I help you?
+  Welcome to Production Focus. How may I help you?
 
 welcome_card: |
-  production_focus is an Alexa skill written by Stuck@Home. An alexa skill to focus your production
+  Production Focus is an Alexa skill written by Stuck@Home, helping to generate productivity through periodic
+  reminders.
 
 stop_bye: |
   Goodbye!
@@ -14,7 +15,13 @@ cancel_bye: |
   OK, goodbye!
 
 help_text: |
-  production_focus is an Alexa skill that does things. This is where the developer would normally explain how to do them.
+  Production Focus is an Alexa skill that helps generate productivity.
+
+  To start using Production Focus, try saying "create a new task to exercise today at 7 p.m.".
+  You can also create repeating reminders by saying "create a new recurring reminder to exercise daily at 7 p.m."
+  Mark a task as done by saying "mark as done task exercise".
+  You can view your current divergence meter, or how well you're doing on your tasks (lower is better) by saying "view divergence".
+  You will receive periodic SMS reminders for tasks that you do infrequently.
 
 all_tasks: |
   {% if tasks|length == 0 %}
@@ -47,7 +54,7 @@ no_matches: |
   Sorry, no matches were found with your search criteria.
 
 no_desc: |
-  Sorry, could you repeat that with your task's description?
+  Sorry, could you repeat that?
 
 no_due_time: |
   Sorry, could you repeat that and specify your task's due date?
@@ -56,13 +63,13 @@ reprompt: |
   I didn't quite get that. Please state again what you would like me to do.
 
 todo_already_done: |
-  Sorry, but you've already completed this todo item!
+  Sorry, but you've already completed this task item!
 
 reminder_not_yet_due: |
   Sorry, but this reminder cannot be done again yet.
 
 completed_todo: |
-  Congratulations on completing your todo to {{ description }}! Your divergence meter is now {{ task_divergence }}
+  Congratulations on completing your task to {{ description }}! Your divergence meter is now {{ task_divergence }}
   for this todo, and {{ overall_divergence }} overall.
 
 completed_reminder: |
@@ -86,3 +93,10 @@ unknown_day_interval: |
 
 time_travel_is_prohibited: |
   Sorry, but as of yet we don't know about any form of time travel.
+
+# no nothing party
+no_nothing: |
+  There's nothing to say no to!
+
+yes_nothing: |
+  There's nothing to say yes to!
