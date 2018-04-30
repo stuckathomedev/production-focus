@@ -4,21 +4,22 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-table = dynamodb.Table('Tasks')
+tasks = dynamodb.Table('Tasks')
+phone_numbers = dynamodb.Table('PhoneNumbers')
 
 
 def table_item_count():
-    print(table.item_count)
+    print(tasks.item_count)
 
 
 def table_creation_time():
-    print(table.creation_time)
+    print(tasks.creation_time)
 
 
-def create_task(id, user_id, description, is_recurring, days_until, due_time):
-    table.put_item(
+def create_task(task_id, user_id, description, is_recurring, days_until, due_time):
+    tasks.put_item(
         Item={
-            'CustomerID': str(id),
+            'task_id': str(task_id),
             'user_id': user_id,
             'description': description,
             'is_recurring': is_recurring,
@@ -31,21 +32,23 @@ def create_task(id, user_id, description, is_recurring, days_until, due_time):
         }
     )
 
-def search_task(id):
-    response = table.get_item(
+def get_task(user_id, task_id):
+    response = tasks.get_item(
         Key={
-            'CustomerID': id
+            'user_id': user_id,
+            'task_id': task_id
         }
     )
     item = response['Item']
     print(item)
 
 
-def update_intent(id, **kwargs):
+def update_task(user_id, task_id, **kwargs):
     for key, value in kwargs.items():
-        table.update_item(
+        tasks.update_item(
             Key={
-                'CustomerID': id
+                'user_id': user_id,
+                'task_id': task_id
             },
             UpdateExpression=f'SET {key} = :vary',
             ExpressionAttributeValues={
@@ -55,25 +58,43 @@ def update_intent(id, **kwargs):
 
 def get_all_tasks():
     # TODO paginate when tasks > 1 MB
-    return table.scan(
+    return tasks.scan(
         Select='ALL_ATTRIBUTES',
         ConsistentRead=True
     )['Items']
 
 
-def delete_intent(id):
-    table.delete_item(
+def delete_task(user_id, task_id):
+    tasks.delete_item(
         Key={
-            'CustomerID': id
+            'user_id': user_id,
+            'task_id': task_id
         }
     )
 
-def search_by_user(user_id):
-    response = table.get_item(
-        Key={
-            'user_id': user_id
+
+def get_all_user_tasks(user_id):
+    response = tasks.query(
+        KeyConditionExpression='user_id = :varx',
+        Select='ALL_ATTRIBUTES',
+        ExpressionAttributeValues={
+            ':varx': user_id
         }
     )
-    item = response['Item']
-    print(item)
-    return(item)
+    items = response['Items']
+    print(items)
+    return items
+
+
+def get_phone_number(user_id):
+    response = phone_numbers.get_item(Key={'user_id': user_id})
+    if response.get('Item') is None:
+        return None
+    else:
+        return response['Item']['number']
+
+
+def set_phone_number(user_id, number):
+    phone_numbers.put_item(
+        Item={'user_id': user_id, 'number': number}
+    )

@@ -6,13 +6,15 @@
 # An alexa skill to focus your production
 
 import logging
+from urllib.parse import urlparse
 from datetime import datetime, date
 from uuid import uuid4
 
 from nltk.corpus import stopwords
-from flask import Flask, json, render_template
+from flask import Flask, request as flask_request, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
+import algorithms
 from routes import routes
 import threading
 
@@ -156,20 +158,9 @@ def search_for_task(search_string):
     print(search_string)
     #delete_words = stopwords.words('english')
     #terms = [word for word in search_string.split() if word not in delete_words]
-    matching_tasks = [task for task in db.get_all_tasks() if
+    matching_tasks = [task for task in db.get_all_user_tasks(session.user.userId) if
                       search_string in task['description']]
     return matching_tasks
-
-
-def get_divergence_meter() -> float:
-    all_tasks = db.get_all_tasks()
-    trials = sum([task['trials'] for task in all_tasks])
-    completions = sum([task['completions'] for task in all_tasks])
-    if trials == 0:
-        return 0
-
-    divergence = ((trials - completions) / trials) * 100
-    return divergence
 
 
 @ask.intent('CreateTodoIntent', convert={'due_date': 'date', 'due_time': 'time'})
@@ -227,12 +218,16 @@ def handle_view_tasks():
 
 @ask.intent('ViewDivergenceMeterIntent')
 def handle_view_divergence_meter():
-    divergence = "{0:.6f}".format(get_divergence_meter())
+    user_tasks = db.get_all_user_tasks(session.user.userId)
+    divergence = "{0:.6f}".format(algorithms.get_overall_divergence(user_tasks))
+    uri = urlparse(flask_request.url)
+    divergence_url = f"{uri.scheme}://{uri.netloc}/production/generate_nixie?pattern={divergence}"
+    print("Got divergence: ", divergence)
     return statement(render_template("divergence_meter", meter=divergence))\
         .standard_card(title="Divergence Meter",
                        text=divergence,
-                       small_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}",
-                       large_image_url=f"https://f954a0f8.ngrok.io/generate_nixie?pattern={divergence}")
+                       small_image_url=divergence_url,
+                       large_image_url=divergence_url)
 
 
 @ask.intent('ViewHappinessIntent')
@@ -255,7 +250,7 @@ def handle_delete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.delete_intent(match['CustomerID'])
+    db.delete_task(session.user.userId, match['task_id'])
     return statement(render_template("deleting_task", description=match['description']))
 
 
@@ -279,14 +274,20 @@ def handle_complete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
-    db.update_intent(match['CustomerID'], completions=match['completions'] + 1)
+    db.update_task(session.user.userId, match['task_id'], completions=match['completions'] + 1)
     if match['is_recurring'] == True:
         # TODO impl multiple missing trials
-        db.update_intent(match['CustomerID'], last_completed=str(date.today()), trials=match['trials'] + 1)
+        db.update_task(session.user.userId, match['task_id'], last_completed=str(date.today()), trials=match['trials'] + 1)
         return statement(render_template("completed_reminder", description=match['description'], ))
     else:
-        db.update_intent(match['CustomerID'], completed=True, trials=match['trials'] + 1)
+        db.update_task(session.user.userId, match['task_id'], completed=True, trials=match['trials'] + 1)
         return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
+
+
+@ask.intent('SetPhoneNumberIntent')
+def handle_set_phone_number(number):
+    db.set_phone_number(session.user.userId, number)
+    return statement(render_template("set_phone_number", number=number))
 
 
 if __name__ == '__main__':

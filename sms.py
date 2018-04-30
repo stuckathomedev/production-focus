@@ -1,6 +1,9 @@
 from twilio.rest import Client
-from db import search_by_user
+from db import get_all_tasks, get_phone_number
+import algorithms
 import datetime
+import dateparser
+from datetime import date, time, timedelta
 import threading
 
 account = "AC5324f49019d53ba87268a99cdb0fa482"
@@ -17,19 +20,14 @@ def send_message(dest_time, mensaje):
                                              from_="+16176827988",
                                              body=mensaje)
             print("message sent!")
-            break;
+            break
 
 
-def send_completion(dest_time, completion, description):
-    while True:
-        now = datetime.datetime.now()
-        time_current = (now.strftime("%H:%M"))
-        if time_current == dest_time:
-            message = client.messages.create(to="9788448697",
-                                             from_="+16176827988",
-                                             body="Your current completion rate for your intent of: '" + description + " is currently at:" + completion + "% You may want to step it up or consider cancelling!")
-            print("message sent!")
-            break;
+def send_completion(phone_number, completion, description):
+    client.messages.create(to=phone_number,
+                           from_="+16176827988",
+                           body="Your current completion rate for your task of: '" + description + " is currently at:" + completion + "% You may want to step it up or consider cancelling!")
+    print("message sent!")
 
 
 def send_message_thread(time, message):
@@ -42,15 +40,31 @@ def send_message_completion(time, completion, description):
     t.start()
 
 
-def send_completion_reminders(user_id, time):
-    user_results = search_by_user(user_id)
-    for x in user_results:
-        completions = x[completions]
-        trials = x[trials]
-        description = x[description]
-        divergance = (completions / trials)*100
-        if divergance > 50:
-            send_message_completion(time, divergance, description)
+def due_within_hour(task):
+    completed = dateparser.parse(task['last_completed']).date()
+    days_since_completed = (date.today() - completed).days
+    time_within_hour = (datetime.datetime.now() - datetime.datetime.combine(date.today(), task['due_time'])).seconds <= 3600
+
+    print(task, "due within hour:", time_within_hour)
+
+    if task['is_recurring'] == True:
+        if (days_since_completed % task['days_until'] == 0
+                and time_within_hour):
+            # It's either time to do it or a multiple of times to do it
+            return True
         else:
+            return False
+    else:
+        return days_since_completed == task['days_until'] and time_within_hour
+
+def send_completion_reminders():
+    results = [task for task in get_all_tasks() if due_within_hour(task)]
+
+    for x in results:
+        phone_number = get_phone_number(x['user_id'])
+        if phone_number is None:
             continue
-    return 0
+
+        divergence = algorithms.calculate_divergence(x)
+        if divergence > 50 and due_within_hour(x):
+            send_completion(phone_number, divergence, x['description'])

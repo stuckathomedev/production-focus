@@ -39,3 +39,6 @@ divergence_meter: |
 
 no_params: |
   Sorry, and error has occured. Either parameters have not been provided or not enough have been provided.
+
+set_phone_number: |
+  Okay, your phone number for notifications is now {{ number }}.
