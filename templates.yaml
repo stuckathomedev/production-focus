@@ -44,7 +44,10 @@ no_params: |
   Sorry, an error has occured. Either parameters have not been provided or not enough have been provided.
 
 set_phone_number: |
-  Okay, your phone number for notifications is now {{ number }}.
+  <speak>
+    Okay, your phone number for notifications is now
+    <say-as interpret-as="telephone">{{ number }}</say-as>.
+  </speak>
 
 time_travel_is_prohibited: |
   Sorry, but as of yet we don't know about any form of time travel.
