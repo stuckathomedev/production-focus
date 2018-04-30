@@ -7,16 +7,15 @@
 
 import logging
 from urllib.parse import urlparse
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from uuid import uuid4
 
-from nltk.corpus import stopwords
+import dateparser
 from flask import Flask, request as flask_request, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
 import algorithms
 from routes import routes
-import threading
 
 __author__ = 'Stuck@Home'
 __email__ = 'h0m3stuck@gmail.com'
@@ -274,11 +273,11 @@ def handle_view_mailbox():
 
 @ask.intent('CompleteTaskIntent')
 def handle_complete_task(description):
-
     if description is None:
         return statement(render_template("no_params"))
 
-    matches = search_for_task(description)
+    # Only get undone tasks matching the description
+    matches = [task for task in search_for_task(description) if task['completed'] == False]
     if len(matches) == 0:
         return statement(render_template("no_matches"))
     if len(matches) > 1:
@@ -287,14 +286,41 @@ def handle_complete_task(description):
                                          descriptions=str([match['description'] for match in matches])))
 
     match = matches[0]
+    task_divergence = algorithms.calculate_divergence(match)
+    overall_divergence = algorithms.get_overall_divergence(db.get_all_user_tasks(session.user.userId))
+
     db.update_task(session.user.userId, match['task_id'], completions=match['completions'] + 1)
     if match['is_recurring'] == True:
-        # TODO impl multiple missing trials
-        db.update_task(session.user.userId, match['task_id'], last_completed=str(date.today()), trials=match['trials'] + 1)
-        return statement(render_template("completed_reminder", description=match['description'], ))
+        # Calculate # of trials missed
+        last_completed = dateparser.parse(match['last_completed']).date()
+        today = date.today()
+        days_until = timedelta(days=int(match['days_until']))
+
+        # Calculates # of trials - get # of days since last completed,
+        # floordiv by day interval, subtract one to get *missed* trials
+        # not counting this one
+        trials_missed = min(0, (today - last_completed) // days_until - 1)
+
+        db.update_task(session.user.userId, match['task_id'],
+                       last_completed=str(date.today()),
+                       trials=match['trials'] + trials_missed + 1,
+                       completions=match['completions'] + 1)
+        return statement(render_template("completed_reminder",
+                                         description=match['description'],
+                                         days_until=days_until.days,
+                                         task_divergence=task_divergence,
+                                         overall_divergence=overall_divergence))
     else:
-        db.update_task(session.user.userId, match['task_id'], completed=True, trials=match['trials'] + 1)
-        return statement(render_template("completed_task", description=match['description'], meter=get_divergence_meter()))
+        # Not recurring, simply mark as done
+        db.update_task(session.user.userId, match['task_id'],
+                       last_completed=str(date.today()),
+                       completed=True,
+                       completions=1,
+                       trials=1)
+        return statement(render_template("completed_todo",
+                                         description=match['description'],
+                                         task_divergence=task_divergence,
+                                         overall_divergence=overall_divergence))
 
 
 @ask.intent('SetPhoneNumberIntent')

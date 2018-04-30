@@ -34,8 +34,13 @@ more_than_one_match: |
 no_matches: |
   Sorry, no matches were found with your search criteria.
 
-completed_task: |
-  Congratulations on completing your task to {{ description }}! Your divergence meter is now {{ meter }}.
+completed_todo: |
+  Congratulations on completing your todo to {{ description }}! Your divergence meter is now {{ task_divergence }}
+  for this todo, and {{ overall_divergence }} overall.
+
+completed_reminder: |
+  Congratulations on completing {{ description }}! This reminder will next be due in {{ days_until }} days. Your
+  divergence meter is now {{ task_divergence }} for this reminder, and {{ overall_divergence }} overall.
 
 divergence_meter: |
   Your current divergence meter is: {{ meter }}.
