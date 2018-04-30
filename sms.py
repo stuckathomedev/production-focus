@@ -13,18 +13,17 @@ client = Client(account, token)
 def send_completion(phone_number, completion, description):
     client.messages.create(to=phone_number,
                            from_="+16176827988",
-                           body="Your current completion rate for your task of: '" + description + " is currently at:" + completion + "% You may want to step it up or consider cancelling!")
+                           body="Your current completion rate for your task of: '" + description + " is currently at:" + str(completion) + "% You may want to step it up or consider cancelling!")
     print("message sent!")
 
 
 def due_within_hour(task):
     completed = dateparser.parse(task['last_completed']).date()
     days_since_completed = (date.today() - completed).days
-    time_within_hour = (datetime.datetime.now() -
-                        datetime.datetime.combine(date.today(),
-                                                  dateparser.parse(task['due_time']).time())).seconds <= 3600
+    due_time_today = dateparser.parse(task['due_time'])
+    time_within_hour = (due_time_today - datetime.datetime.now()).seconds <= 3600
 
-    print(task, "due within hour:", time_within_hour)
+    print(task, "due within hour:", time_within_hour, due_time_today, days_since_completed)
 
     if task['is_recurring']:
         if (days_since_completed % task['days_until'] == 0
@@ -34,7 +33,7 @@ def due_within_hour(task):
         else:
             return False
     else:
-        return days_since_completed == task['days_until'] and time_within_hour
+        return days_since_completed == int(task['days_until']) and time_within_hour
 
 
 def send_completion_reminders():
@@ -43,8 +42,11 @@ def send_completion_reminders():
     for x in results:
         phone_number = get_phone_number(x['user_id'])
         if phone_number is None:
+            print("No phone number; skip-u")
             continue
+        due = due_within_hour(x)
 
         divergence = algorithms.calculate_divergence(x)
-        if divergence > 50 and due_within_hour(x):
+        print("Divergence:", divergence, "due within hour:", due)
+        if divergence >= 0 and due:
             send_completion(phone_number, divergence, x['description'])

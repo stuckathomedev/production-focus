@@ -1,7 +1,10 @@
 def calculate_divergence(task):
     completions = task['completions']
     trials = task['trials']
-    return ((trials - completions) / trials) * 100
+    if trials == 0:
+        return 0
+    else:
+        return ((trials - completions) / trials) * 100
 
 
 def get_overall_divergence(user_tasks) -> float:
