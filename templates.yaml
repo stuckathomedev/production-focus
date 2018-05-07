@@ -100,3 +100,6 @@ no_nothing: |
 
 yes_nothing: |
   There's nothing to say yes to!
+
+invalid_number: |
+  Sorry, could you repeat that? I don't think that's a valid number.

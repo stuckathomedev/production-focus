@@ -11,6 +11,7 @@ from datetime import datetime, date, timedelta
 from uuid import uuid4
 
 import dateparser
+import phonenumbers
 from flask import Flask, request as flask_request, render_template
 from flask_ask import Ask, request, session, question, statement
 import db
@@ -247,7 +248,7 @@ def handle_view_happiness():
 def handle_delete_task(description):
     if description is None:
         return question(render_template("no_desc"))\
-            .reprompt("reprompt")
+            .reprompt(render_template("reprompt"))
 
     matches = search_for_task(description)
     descriptions = list(map(lambda task: task['description'], matches))
@@ -339,8 +340,19 @@ def handle_complete_task(description):
                                          overall_divergence=overall_divergence))
 
 
+def is_valid_phone_number(number: str):
+    try:
+        possible = phonenumbers.parse(number, "US")
+        return phonenumbers.is_valid_number(possible)
+    except phonenumbers.NumberParseException:
+        return False
+
+
 @ask.intent('SetPhoneNumberIntent')
 def handle_set_phone_number(number):
+    if not is_valid_phone_number(number):
+        return question(render_template("invalid_number")).reprompt(render_template("reprompt"))
+
     db.set_phone_number(session.user.userId, number)
     return statement(render_template("set_phone_number", number=number))
 
